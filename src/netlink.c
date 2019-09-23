@@ -655,14 +655,17 @@ ssize_t netlink_get_interface_addrs(int ifindex, bool v6, struct odhcpd_ipaddr *
 	nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, cb_finish_handler, &ctxt);
 	nl_cb_err(cb, NL_CB_CUSTOM, cb_error_handler, &ctxt);
 
-	nl_send_auto_complete(rtnl_socket, msg);
+	ctxt.ret = nl_send_auto_complete(rtnl_socket, msg);
+	if (ctxt.ret < 0)
+		goto free;
+
+	ctxt.ret = 0;
+
 	while (ctxt.pending > 0)
 		nl_recvmsgs(rtnl_socket, cb);
 
-	nlmsg_free(msg);
-
 	if (ctxt.ret <= 0)
-		goto out;
+		goto free;
 
 	time_t now = odhcpd_time();
 	struct odhcpd_ipaddr *addr = *addrs;
@@ -676,6 +679,9 @@ ssize_t netlink_get_interface_addrs(int ifindex, bool v6, struct odhcpd_ipaddr *
 		if (addr[i].valid < UINT32_MAX - now)
 			addr[i].valid += now;
 	}
+
+free:
+    nlmsg_free(msg);
 
 out:
 	nl_cb_put(cb);
