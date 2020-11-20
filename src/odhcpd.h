@@ -248,6 +248,7 @@ struct interface {
 	bool master;
 	bool ignore;
 	bool always_rewrite_dns;
+	bool dns_service;
 	bool ra_not_onlink;
 	bool ra_advrouter;
 	bool ra_useleasetime;
