@@ -249,6 +249,7 @@ struct interface {
 	bool master;
 	bool ignore;
 	bool always_rewrite_dns;
+	bool dns_service;
 
 	// NDP
 	int learn_routes;
