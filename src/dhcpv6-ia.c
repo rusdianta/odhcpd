@@ -615,8 +615,7 @@ static bool assign_pd(struct interface *iface, struct dhcp_assignment *assign)
 				return true;
 			}
 
-			if (c->assigned != 0)
-				current = (c->assigned + (1 << (64 - c->length)));
+			current = (c->assigned + (1 << (64 - c->length)));
 		}
 	}
 
@@ -627,6 +626,7 @@ static bool assign_pd(struct interface *iface, struct dhcp_assignment *assign)
 			continue;
 
 		current = (current + asize) & (~asize);
+
 		if (current + asize < c->assigned) {
 			assign->assigned = current;
 			list_add_tail(&assign->head, &c->head);
@@ -637,8 +637,7 @@ static bool assign_pd(struct interface *iface, struct dhcp_assignment *assign)
 			return true;
 		}
 
-		if (c->assigned != 0)
-			current = (c->assigned + (1 << (64 - c->length)));
+		current = (c->assigned + (1 << (64 - c->length)));
 	}
 
 	return false;
@@ -714,7 +713,7 @@ static void handle_addrlist_change(struct netevent_handler_info *info)
 				c->managed_size)
 			continue;
 
-		if (c->length < 128 && (c->assigned == 0 || c->assigned >= border->assigned) && c != border)
+		if (c->length < 128 && (c->assigned >= border->assigned) && c != border)
 			list_move(&c->head, &reassign);
 		else if (c != border && (c->flags & OAF_BOUND))
 			apply_lease(iface, c, true);
@@ -875,8 +874,7 @@ static size_t build_ia(uint8_t *buf, size_t buflen, uint16_t status,
 				o_ia_p.addr.s6_addr32[1] |= htonl(a->assigned);
 				o_ia_p.addr.s6_addr32[2] = o_ia_p.addr.s6_addr32[3] = 0;
 
-				if ((a->assigned == 0 && a->managed_size == 0) ||
-						!valid_prefix_length(a, addrs[i].prefix))
+				if (!valid_prefix_length(a, addrs[i].prefix))
 					continue;
 
 				if (buflen < ia_len + sizeof(o_ia_p))
@@ -895,8 +893,7 @@ static size_t build_ia(uint8_t *buf, size_t buflen, uint16_t status,
 
 				o_ia_a.addr.s6_addr32[3] = htonl(a->assigned);
 
-				if (!ADDR_ENTRY_VALID_IA_ADDR(iface, i, m, addrs) ||
-						a->assigned == 0)
+				if (!ADDR_ENTRY_VALID_IA_ADDR(iface, i, m, addrs))
 					continue;
 
 				if (buflen < ia_len + sizeof(o_ia_a))
