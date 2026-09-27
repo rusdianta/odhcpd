@@ -30,6 +30,8 @@ struct icmpv6_opt {
 	(void*)(opt + opt->len) <= (void*)(end); opt += opt->len)
 
 
+#define MaxInitialRtrAdvInterval	16
+#define MaxInitialRtAdvs		3
 #define MaxRtrAdvInterval	1800
 #define MinRtrAdvInterval	3
 
